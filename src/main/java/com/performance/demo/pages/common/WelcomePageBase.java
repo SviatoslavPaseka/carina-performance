@@ -1,5 +1,6 @@
 package com.performance.demo.pages.common;
 
+import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
 import com.zebrunner.carina.webdriver.gui.AbstractPage;
 import org.openqa.selenium.WebDriver;
 
@@ -11,4 +12,5 @@ public abstract class WelcomePageBase extends AbstractPage {
 
     public abstract LoginPageBase clickNextBtn();
 
+    public abstract ExtendedWebElement getNextBtn();
 }

@@ -32,4 +32,8 @@ public class WelcomePage extends WelcomePageBase {
         return initPage(getDriver(), LoginPageBase.class);
     }
 
+    @Override
+    public ExtendedWebElement getNextBtn(){
+        return nextBtn;
+    }
 }

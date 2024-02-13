@@ -1,5 +1,6 @@
 package com.performance.demo.performance;
 
+import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
@@ -7,6 +8,8 @@ import org.openqa.selenium.support.events.WebDriverListener;
 import com.google.common.base.Stopwatch;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
+
+import java.util.Arrays;
 
 public class PerformanceListener implements WebDriverListener {
 
@@ -51,15 +54,23 @@ public class PerformanceListener implements WebDriverListener {
 
     @Override
     public void afterClick(WebElement element) {
+        String action = "Clicking " + Arrays.stream(element.toString().split("->"))
+                .reduce((first, second) -> second.substring(0, second.length() - 1))
+                .orElse("empty");
         if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName);
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
     }
 
     @Override
     public void afterSendKeys(WebElement element, CharSequence... keysToSend) {
+        String action = "Typing: " + Arrays.toString(keysToSend) +
+                ", element: " + Arrays.stream(element.toString().split("->"))
+                .reduce((first, second) -> second.substring(0, second.length() - 1))
+                .orElse("empty");
         if (flowName != null)
-            performanceCollector.collectSnapshotBenchmarks(flowName);
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
     }
+
 
     private static void startTracking() {
         if (flowName != null) {

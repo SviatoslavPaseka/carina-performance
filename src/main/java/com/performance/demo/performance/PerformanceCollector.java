@@ -44,7 +44,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.dbService = new InfluxDbService();
     }
 
-    public void collectSnapshotBenchmarks(String flowName) {
+    public void collectSnapshotBenchmarks(String flowName, String actionName) {
 
         Double cpuValue = collectCpuBenchmarks();
         MemParser.MemRow memRow = collectMemoryBenchmarks();
@@ -60,10 +60,13 @@ public abstract class PerformanceCollector implements IDriverPool {
 
         try {
             if (cpuNotNull) {
-                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
+                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
+//                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
             }
+//            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
+//                    userName));
             allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
-                    userName));
+                    userName, actionName));
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }

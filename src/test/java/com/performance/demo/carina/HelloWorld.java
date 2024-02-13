@@ -15,11 +15,12 @@
  */
 package com.performance.demo.carina;
 
+import com.performance.demo.pages.common.WelcomePageBase;
 import com.zebrunner.carina.core.IAbstractTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
-
+import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -34,6 +35,16 @@ public class HelloWorld implements IAbstractTest {
     @Test()
     public void helloWorld() {
         LOGGER.info("Hello World!");
+        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
+        ExtendedWebElement element = welcomePage.getNextBtn();
+        LOGGER.info("getTagName " + element.getElement().getTagName());
+//        LOGGER.info("getAccessibleName" + element.getElement().getAccessibleName());
+//        LOGGER.info("getAriaRole" + element.getElement().getAriaRole());
+        LOGGER.info("getBy " + element.getBy());
+        LOGGER.info("getName " + element.getName());
+        LOGGER.info("getNameWithLocator " + element.getNameWithLocator());
+        LOGGER.info("getText " + element.getText());
+        LOGGER.info("toString " + element.toString());
     }
 
 }

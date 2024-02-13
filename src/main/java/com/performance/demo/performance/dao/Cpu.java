@@ -11,9 +11,14 @@ public class Cpu extends BaseMeasurement {
     @Column(name = "value")
     private Double value;
 
-    public Cpu(Double value, Instant time, String flowName, String userName) {
+    @Column(tag = true, name = "action_name", measurement = true)
+    private String actionName;
+
+    public Cpu(Double value, Instant time, String flowName, String userName, String actionName) {
+//    public Cpu(Double value, Instant time, String flowName, String userName) {
         super(flowName, time, userName);
         this.value = value;
+        this.actionName = actionName;
     }
 
     public Double getValue() {

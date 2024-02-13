@@ -9,7 +9,11 @@
 	
 	<test name="Hello World test">
 		<classes>
-			<class name="com.performance.demo.carina.HelloWorld" />
+			<class name="com.performance.demo.carina.MobileSampleTest" >
+				<methods>
+					<include name="testUIElements"/>
+				</methods>
+			</class>
 		</classes>
 	</test>
 
