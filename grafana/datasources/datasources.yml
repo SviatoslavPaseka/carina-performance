@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  - name: InfluxDB
+  - name: '$${DS_INFLUXDB}'
     type: influxdb
     url: http://influxdb2:8086
     access: proxy
@@ -14,7 +14,8 @@ datasources:
       organization: "solvd"
       defaultBucket: "carina"
     secureJsonData:
-      token: "0YvysHQJ16LVmuose240KltNteTrdwb26YwrlcNBrNepKbiyEw2f9PJsiZmdETSKprqFkKrEm7CJZayUm0sroA== "
+      token: "token"
+
 # Issue the token by passing command in terminal after first build:
 # >>> docker exec influxdb2 influx auth create -o solvd --all-access | awk '/admin/ {print $2 " "}'
 # Than copy it and paste here and in src/main/resources/_testdata.properties. Rebuild docker-compose to datasource been connected to Grafana.

@@ -11,6 +11,7 @@ import com.google.common.base.Stopwatch;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -27,6 +28,7 @@ public class PerformanceListener implements WebDriverListener {
             performanceCollector = new AdbPerformanceCollector();
             performanceCollector.setUserName(userName);
             setFlowName(flowName);
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createUnstarted());
             performanceCollector.setCollectLoginTime(isCollectLoginTime);
             performanceCollector.setCollectExecutionTime(isCollectExecutionTime);
             startTracking();
@@ -60,8 +62,12 @@ public class PerformanceListener implements WebDriverListener {
         String action = "Clicking " + Arrays.stream(element.toString().split("->"))
                 .reduce((first, second) -> second.substring(0, second.length() - 1))
                 .orElse("empty");
-        if (flowName != null)
+        if (flowName != null) {
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
+        }
+        if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
+        }
     }
 
     @Override
@@ -80,6 +86,13 @@ public class PerformanceListener implements WebDriverListener {
 //        actions.forEach();
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
+    }
+
+    @Override
+    public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {
+        if (performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.collectLoadTime(flowName);
+        }
     }
 
     private static void startTracking() {

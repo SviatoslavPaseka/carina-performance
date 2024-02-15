@@ -33,11 +33,23 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     private Stopwatch loginStopwatch;
     private Stopwatch executionStopWatch;
+    private Stopwatch loadTimeStopwatch;
+
+    protected int loadTimeQty = 0;
 
     protected String userName;
 
     protected PerformanceCollector() {
         this.dbService = new InfluxDbService();
+    }
+
+    public void collectLoadTime(String flowName) {
+        Instant instant = Instant.now();
+        loadTimeStopwatch.stop();
+        Double loadTime = (double)loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
+        LOGGER.info("LOAD TIME "+loadTime);
+        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName));
+        loadTimeQty++;
     }
 
     public void collectSnapshotBenchmarks(String flowName, String actionName) {
@@ -123,6 +135,14 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     public boolean isCpuNotNull() {
         return cpuNotNull;
+    }
+
+    public Stopwatch getLoadTimeStopwatch() {
+        return loadTimeStopwatch;
+    }
+
+    public void setLoadTimeStopwatch(Stopwatch loadTimeStopwatch) {
+        this.loadTimeStopwatch = loadTimeStopwatch;
     }
 
     public Stopwatch getLoginStopwatch() {
