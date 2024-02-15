@@ -87,7 +87,6 @@ public class PerformanceListener implements WebDriverListener {
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
     }
-
     @Override
     public void beforeAnyWebElementCall(WebElement element, Method method, Object[] args) {
         if (performanceCollector.getLoadTimeStopwatch().isRunning()) {

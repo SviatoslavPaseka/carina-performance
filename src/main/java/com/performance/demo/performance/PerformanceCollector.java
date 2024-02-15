@@ -75,7 +75,6 @@ public abstract class PerformanceCollector implements IDriverPool {
                     userName));
             allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
                     userName, actionName));
-//            allBenchmarks.add(new Action(actionName, flowName, instant, userName));
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }
