@@ -1,7 +1,9 @@
 package com.performance.demo.performance;
 
 import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.events.WebDriverListener;
 
@@ -10,6 +12,7 @@ import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.webdriver.config.WebDriverConfiguration;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public class PerformanceListener implements WebDriverListener {
 
@@ -71,6 +74,13 @@ public class PerformanceListener implements WebDriverListener {
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
     }
 
+    @Override
+    public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
+        String action = "Swiping";
+//        actions.forEach();
+        if (flowName != null)
+            performanceCollector.collectSnapshotBenchmarks(flowName, action);
+    }
 
     private static void startTracking() {
         if (flowName != null) {

@@ -6,11 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import com.performance.demo.performance.dao.BaseMeasurement;
-import com.performance.demo.performance.dao.Cpu;
-import com.performance.demo.performance.dao.ExecutionTime;
-import com.performance.demo.performance.dao.LoginTime;
-import com.performance.demo.performance.dao.Memory;
+import com.performance.demo.performance.dao.*;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
 import com.performance.demo.utils.parser.MemParser;
@@ -61,12 +57,13 @@ public abstract class PerformanceCollector implements IDriverPool {
         try {
             if (cpuNotNull) {
                 allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
-//                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
+                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
             }
-//            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
-//                    userName));
+            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
+                    userName));
             allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
                     userName, actionName));
+//            allBenchmarks.add(new Action(actionName, flowName, instant, userName));
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }

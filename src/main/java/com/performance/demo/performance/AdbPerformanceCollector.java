@@ -255,14 +255,14 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
         int actionCount;
         if (collectLoginTime && collectExecutionTime) {
-            actionCount = cpuQuantity + memQuantity + 4;
+            actionCount = 2*cpuQuantity + 2*memQuantity + 4;
         } else if (collectLoginTime || collectExecutionTime) {
-            actionCount = cpuQuantity + memQuantity + 3;
+            actionCount = 2*cpuQuantity + 2*memQuantity + 3;
         } else {
-            actionCount = cpuQuantity + memQuantity + 2;
+            actionCount = 2*cpuQuantity + 2*memQuantity + 2;
             LOGGER.warn("No time duration was collected during test execution");
         }
-
+        LOGGER.info("cpuQuantity: " + cpuQuantity + " , memQuantity: " + memQuantity);
         int benchmarkCount = allBenchmarks.size();
 
         LOGGER.info("Action count: {} benchmark count: {}", actionCount, benchmarkCount);

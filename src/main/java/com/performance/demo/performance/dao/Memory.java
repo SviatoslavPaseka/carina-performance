@@ -11,13 +11,17 @@ public class Memory extends BaseMeasurement {
     @Column(name = "proportional_set_size")
     private Double usedPercent;
 
-    @Column(tag = true, name = "action_name", measurement = true)
+    @Column(tag = true, name = "_action_name")
     private String actionName;
 
     public Memory(Double usedPercent, Instant time, String flowName, String userName, String actionName) {
         super(flowName, time, userName);
         this.usedPercent = usedPercent;
         this.actionName = actionName;
+    }
+    public Memory(Double usedPercent, Instant time, String flowName, String userName) {
+        super(flowName, time, userName);
+        this.usedPercent = usedPercent;
     }
 
     public Double getUsedPercent() {
