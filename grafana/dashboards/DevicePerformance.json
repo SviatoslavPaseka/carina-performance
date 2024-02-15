@@ -1,59 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_${DS_INFLUXDB}",
-      "label": "${DS_INFLUXDB}",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "influxdb",
-      "pluginName": "InfluxDB"
-    },
-    {
-      "name": "DS_EXPRESSION",
-      "label": "Expression",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "__expr__"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "datasource",
-      "id": "__expr__",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "bargauge",
-      "name": "Bar gauge",
-      "version": ""
-    },
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "10.3.1"
-    },
-    {
-      "type": "datasource",
-      "id": "influxdb",
-      "name": "InfluxDB",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "stat",
-      "name": "Stat",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -79,14 +24,14 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -136,7 +81,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"execution_time\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> group(columns: [\"_measurement\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -161,7 +106,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -242,7 +187,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"cpu\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -254,7 +199,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -308,7 +253,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"cpu\")\n  |> filter(fn: (r) => r[\"_field\"] == \"value\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -333,7 +278,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "description": "",
       "fieldConfig": {
@@ -415,7 +360,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mem\")\n  |> filter(fn: (r) => r[\"_field\"] == \"proportional_set_size\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -427,7 +372,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -481,7 +426,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"mem\")\n  |> filter(fn: (r) => r[\"_field\"] == \"proportional_set_size\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -506,7 +451,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "description": "",
       "fieldConfig": {
@@ -588,7 +533,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"load_time\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -600,7 +545,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -654,7 +599,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"load_time\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -679,7 +624,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -781,7 +726,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"gfx\")\n  |> filter(fn: (r) => r[\"_field\"] == \"total_frames\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -789,7 +734,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "hide": false,
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"gfx\")\n  |> filter(fn: (r) => r[\"_field\"] == \"janky_frames\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
@@ -812,7 +757,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "description": "",
       "fieldConfig": {
@@ -867,7 +812,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"gfx\")\n  |> filter(fn: (r) => r[\"_field\"] == \"99_percentile\" or r[\"_field\"] == \"95_percentile\" or r[\"_field\"] == \"90_percentile\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n  ",
           "refId": "A"
@@ -880,7 +825,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "${DS_${DS_INFLUXDB}}"
+        "uid": "${DS_INFLUXDB}"
       },
       "fieldConfig": {
         "defaults": {
@@ -991,7 +936,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "${DS_${DS_INFLUXDB}}"
+            "uid": "${DS_INFLUXDB}"
           },
           "query": "from(bucket: \"carina\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"net\")\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
@@ -1029,6 +974,6 @@
   "timezone": "",
   "title": "Device Performance",
   "uid": "carina",
-  "version": 5,
+  "version": 2,
   "weekStart": ""
 }
