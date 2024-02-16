@@ -67,6 +67,7 @@ public class PerformanceListener implements WebDriverListener {
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
+            performanceCollector.setClickActionName(action);
         }
     }
 

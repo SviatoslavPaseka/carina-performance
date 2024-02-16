@@ -35,6 +35,7 @@ public abstract class PerformanceCollector implements IDriverPool {
     private Stopwatch executionStopWatch;
     private Stopwatch loadTimeStopwatch;
 
+    private String clickActionName;
     protected int loadTimeQty = 0;
 
     protected String userName;
@@ -48,7 +49,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         loadTimeStopwatch.stop();
         Double loadTime = (double)loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("LOAD TIME "+loadTime);
-        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName));
+        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, clickActionName));
         loadTimeQty++;
     }
 
@@ -69,10 +70,10 @@ public abstract class PerformanceCollector implements IDriverPool {
         try {
             if (cpuNotNull) {
                 allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
-                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
+//                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
             }
-            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
-                    userName));
+//            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
+//                    userName));
             allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
                     userName, actionName));
         } catch (Exception e) {
@@ -84,8 +85,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         Instant instant = Instant.now();
         LOGGER.info("[ PERFORMANCE INVESTIGATION ] Login took: {}", loginStopwatch);
         Double loginTime = (double) loginStopwatch.elapsed(TimeUnit.MILLISECONDS);
-        allBenchmarks.add(new LoginTime(loginTime, instant, flowName,
-                userName));
+        allBenchmarks.add(new LoginTime(loginTime, instant, flowName, userName));
     }
 
     public void collectExecutionTime(String flowName) {
@@ -93,8 +93,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         executionStopWatch.stop();
         LOGGER.info("[ PERFORMANCE INVESTIGATION ] Test execution took: {}", executionStopWatch);
         Double executionTime = (double) executionStopWatch.elapsed(TimeUnit.MILLISECONDS);
-        allBenchmarks.add(new ExecutionTime(executionTime, instant, flowName,
-                userName));
+        allBenchmarks.add(new ExecutionTime(executionTime, instant, flowName, userName));
     }
 
     public void collectAndWritePerformance(String flowName) {
@@ -104,6 +103,10 @@ public abstract class PerformanceCollector implements IDriverPool {
             dbService.writeData(allBenchmarks);
         else
             LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
+    }
+
+    public void setClickActionName(String clickActionName) {
+        this.clickActionName = clickActionName;
     }
 
     protected abstract Double collectCpuBenchmarks();
