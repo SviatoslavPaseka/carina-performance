@@ -25,7 +25,7 @@ public class CarinaDescriptionPage extends CarinaDescriptionPageBase {
     @FindBy(xpath = "//android.widget.CheckedTextView[@text = 'Web View']")
     private ExtendedWebElement webViewLink;
 
-    @FindBy(xpath = "//android.widget.CheckedTextView[@text = 'ChartsPage']")
+    @FindBy(xpath = "//android.widget.CheckedTextView[@text = 'Charts']")
     private ExtendedWebElement chartsLink;
 
     @FindBy(xpath = "//android.widget.CheckedTextView[@text = 'Map']")
@@ -73,5 +73,6 @@ public class CarinaDescriptionPage extends CarinaDescriptionPageBase {
     public boolean isPageOpened() {
         return webViewContent.isElementPresent();
     }
+
 
 }

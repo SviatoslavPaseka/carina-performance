@@ -11,7 +11,7 @@
 		<classes>
 			<class name="com.performance.demo.carina.MobileSampleTest" >
 				<methods>
-					<include name="testUIElements"/>
+					<include name="testSwiping"/>
 				</methods>
 			</class>
 		</classes>

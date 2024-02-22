@@ -75,4 +75,16 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
         Assert.assertTrue(uiElements.isOthersRadioButtonSelected(), "Others radio button was not selected!");*/
     }
 
+    @Test()
+    @MethodOwner(owner = "spaseka")
+    @TestLabel(name = "feature", value = {"mobile", "acceptance"})
+    @PerformanceTest(flowName = "swiping_test_flow", userName = user, collectLoginTime = true, collectExecutionTime = true)
+    public void testSwiping() {
+        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
+        LoginPageBase loginPage = welcomePage.clickNextBtn();
+        CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
+        ChartsPageBase chartsPage = carinaDescriptionPage.navigateToChartsPage();
+        chartsPage.swipeToAcChartText();
+        pause(3);
+    }
 }

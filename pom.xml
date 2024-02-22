@@ -19,7 +19,7 @@
 		<carina-aws-s3.version>1.1.4</carina-aws-s3.version>
 		<java.version>11</java.version>
 		<zebrunner-agent.version>1.9.7</zebrunner-agent.version>
-		<suite>helloWorld</suite>
+		<suite>swipeTest</suite>
 	</properties>
 
 	<repositories>

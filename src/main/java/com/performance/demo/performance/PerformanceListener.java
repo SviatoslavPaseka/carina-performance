@@ -85,8 +85,12 @@ public class PerformanceListener implements WebDriverListener {
     }
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
-        String action = "Swiping";
-//        actions.forEach();
+        // Get the stack trace to retrieve the caller method
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        // Extract the method name from the caller
+        String action = stackTrace[14].getMethodName();
+        System.out.println("METHOD_NAME: " + action);
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
     }
