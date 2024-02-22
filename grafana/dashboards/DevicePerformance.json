@@ -128,7 +128,7 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
+            "insertNulls": 15000,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -301,7 +301,7 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
+            "insertNulls": 15000,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -474,7 +474,7 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
+            "insertNulls": 15000,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -539,7 +539,7 @@
           "refId": "A"
         }
       ],
-      "title": "Load time after click",
+      "title": "Load time after action",
       "type": "timeseries"
     },
     {
@@ -974,6 +974,6 @@
   "timezone": "",
   "title": "Device Performance",
   "uid": "carina",
-  "version": 3,
+  "version": 10,
   "weekStart": ""
 }

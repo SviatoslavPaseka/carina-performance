@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import com.performance.demo.performance.dao.*;
 import com.performance.demo.performance.service.InfluxDbService;
 import com.performance.demo.utils.parser.GfxParser;
-import com.performance.demo.utils.parser.MemParser;
+import com.zebrunner.carina.utils.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,19 +26,18 @@ public abstract class PerformanceCollector implements IDriverPool {
     private long beginEpochMilli;
     protected long endEpochMilli;
     protected List<BaseMeasurement> allBenchmarks = new ArrayList<>();
-    protected boolean cpuNotNull;
     protected boolean isAllDataCollected;
     protected boolean collectLoginTime;
     protected boolean collectExecutionTime;
 
     private Stopwatch loginStopwatch;
-    private Stopwatch executionStopWatch;
+    private Stopwatch executionStopwatch;
     private Stopwatch loadTimeStopwatch;
 
     private String clickActionName;
-    protected int loadTimeQty = 0;
 
     protected String userName;
+    protected int loadTimeQty = 0;
 
     protected PerformanceCollector() {
         this.dbService = new InfluxDbService();
@@ -47,16 +46,15 @@ public abstract class PerformanceCollector implements IDriverPool {
     public void collectLoadTime(String flowName) {
         Instant instant = Instant.now();
         loadTimeStopwatch.stop();
-        Double loadTime = (double)loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
-        LOGGER.info("LOAD TIME "+loadTime);
+        Double loadTime = (double) loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
+        LOGGER.info("LOAD TIME " + loadTime);
         allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, clickActionName));
         loadTimeQty++;
     }
 
     public void collectSnapshotBenchmarks(String flowName, String actionName) {
-
         Double cpuValue = collectCpuBenchmarks();
-        MemParser.MemRow memRow = collectMemoryBenchmarks();
+        Double memValue = collectMemoryBenchmarks();
 
         Instant instant = Instant.now();
 
@@ -68,14 +66,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         }
 
         try {
-            if (cpuNotNull) {
-                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
-//                allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName));
-            }
-//            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
-//                    userName));
-            allBenchmarks.add(new Memory(memRow.getTotalPss().doubleValue(), instant, flowName,
-                    userName, actionName));
+            allBenchmarks.add(new Cpu(cpuValue, instant, flowName, userName, actionName));
+            allBenchmarks.add(new Memory(memValue, instant, flowName, userName, actionName));
         } catch (Exception e) {
             LOGGER.warn("No data was received for memory or cpu");
         }
@@ -90,34 +82,24 @@ public abstract class PerformanceCollector implements IDriverPool {
 
     public void collectExecutionTime(String flowName) {
         Instant instant = Instant.now();
-        executionStopWatch.stop();
-        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Test execution took: {}", executionStopWatch);
-        Double executionTime = (double) executionStopWatch.elapsed(TimeUnit.MILLISECONDS);
+        executionStopwatch.stop();
+        LOGGER.info("[ PERFORMANCE INVESTIGATION ] Test execution took: {}", executionStopwatch);
+        Double executionTime = (double) executionStopwatch.elapsed(TimeUnit.MILLISECONDS);
         allBenchmarks.add(new ExecutionTime(executionTime, instant, flowName, userName));
     }
 
     public void collectAndWritePerformance(String flowName) {
         isAllDataCollected = collectAllBenchmarks(flowName);
         endEpochMilli = Instant.now().toEpochMilli() + 3000;
-        if (isAllDataCollected)
+        if (Boolean.parseBoolean(R.TESTDATA.get("action_count_check"))) {
+            if (isAllDataCollected)
+                dbService.writeData(allBenchmarks);
+            else
+                LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
+        } else {
             dbService.writeData(allBenchmarks);
-        else
-            LOGGER.warn("Skipped writing data to db, not all performance data were received during test execution");
+        }
     }
-
-    public void setClickActionName(String clickActionName) {
-        this.clickActionName = clickActionName;
-    }
-
-    protected abstract Double collectCpuBenchmarks();
-
-    protected abstract MemParser.MemRow collectMemoryBenchmarks();
-
-    protected abstract GfxParser.GfxRow collectGfxBenchmarks();
-
-    public abstract void collectNetBenchmarks();
-
-    protected abstract boolean collectAllBenchmarks(String flowName);
 
     public String getUserName() {
         return userName;
@@ -127,17 +109,19 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.userName = userName;
     }
 
-    public List<BaseMeasurement> getAllBenchmarks() {
-        return allBenchmarks;
+    public void setClickActionName(String clickActionName) {
+        this.clickActionName = clickActionName;
     }
 
-    public void setAllBenchmarks(List<BaseMeasurement> allBenchmarks) {
-        this.allBenchmarks = allBenchmarks;
-    }
+    protected abstract Double collectCpuBenchmarks();
 
-    public boolean isCpuNotNull() {
-        return cpuNotNull;
-    }
+    protected abstract Double collectMemoryBenchmarks();
+
+    protected abstract GfxParser.GfxRow collectGfxBenchmarks();
+
+    protected abstract void collectNetBenchmarks();
+
+    protected abstract boolean collectAllBenchmarks(String flowName);
 
     public Stopwatch getLoadTimeStopwatch() {
         return loadTimeStopwatch;
@@ -155,12 +139,12 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.loginStopwatch = loginStopwatch;
     }
 
-    public Stopwatch getExecutionStopWatch() {
-        return executionStopWatch;
+    public Stopwatch getExecutionStopwatch() {
+        return executionStopwatch;
     }
 
-    public void setExecutionStopWatch(Stopwatch executionStopWatch) {
-        this.executionStopWatch = executionStopWatch;
+    public void setExecutionStopwatch(Stopwatch executionStopwatch) {
+        this.executionStopwatch = executionStopwatch;
     }
 
     public boolean isAllDataCollected() {
