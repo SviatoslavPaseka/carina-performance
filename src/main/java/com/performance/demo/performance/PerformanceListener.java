@@ -1,6 +1,5 @@
 package com.performance.demo.performance;
 
-import com.zebrunner.carina.webdriver.decorator.ExtendedWebElement;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Sequence;
@@ -79,8 +78,11 @@ public class PerformanceListener implements WebDriverListener {
                 .orElse("empty");
         if (flowName != null)
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
+        if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
+            performanceCollector.setClickActionName(action);
+        }
     }
-
     @Override
     public void afterPerform(WebDriver driver, Collection<Sequence> actions) {
         String action = "Swiping";
@@ -100,11 +102,11 @@ public class PerformanceListener implements WebDriverListener {
             if (performanceCollector.isCollectLoginTime() && performanceCollector.isCollectExecutionTime()) {
                 Stopwatch stopwatch = Stopwatch.createStarted();
                 performanceCollector.setLoginStopwatch(stopwatch);
-                performanceCollector.setExecutionStopWatch(stopwatch);
+                performanceCollector.setExecutionStopwatch(stopwatch);
             } else if (performanceCollector.isCollectLoginTime())
                 performanceCollector.setLoginStopwatch(Stopwatch.createStarted());
             else if (performanceCollector.isCollectExecutionTime())
-                performanceCollector.setExecutionStopWatch(Stopwatch.createStarted());
+                performanceCollector.setExecutionStopwatch(Stopwatch.createStarted());
 
             performanceCollector.collectNetBenchmarks();
         }

@@ -4,18 +4,13 @@ import java.lang.invoke.MethodHandles;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.performance.demo.performance.dao.Gfx;
 import com.performance.demo.performance.dao.Network;
-import com.performance.demo.utils.parser.CoreParser;
 import com.performance.demo.utils.parser.GeneralParser;
 import com.performance.demo.utils.parser.GfxParser;
-import com.performance.demo.utils.parser.MemParser;
 import com.performance.demo.utils.parser.NetParser;
 import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
@@ -24,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.zebrunner.carina.webdriver.IDriverPool;
-
-import io.appium.java_client.android.HasSupportedPerformanceDataType;
 
 public class AdbPerformanceCollector extends PerformanceCollector implements IDriverPool {
 
@@ -36,9 +29,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
-    private final String cpuCommand = generateCpuCommand();
-    private final String errorOutput = String.format("No process found for: %s%n", bundleId);
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
+    private final String errorOutput = String.format("No process found for: %s%n", bundleId);
+    private String cpuCommand;
+    private String memCommand;
+    private String netCommand;
+    private String gfxCommand;
 
     private Map<String, NetParser.NetRow> netRowStart;
     private Map<String, NetParser.NetRow> netRowEnd;
@@ -49,15 +45,15 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     public AdbPerformanceCollector() {
         super();
         this.generalParser = new GeneralParser(bundleId);
+        generateCommands();
     }
 
     public enum PerformanceTypes {
-        CPU("top -n 1 | grep -E \"%s|%s\""),
-        MEM("dumpsys meminfo %s"),
+        CPU("ps -p %s -o "),
+        MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3}'"),
         NET("cat proc/%s/net/dev"),
-        PID("pidof -s %s"),
+        PID("pgrep -f %s"),
         CORE("cat /proc/stat"),
-        USERID("dumpsys package %s | grep userId"),
         GFX("dumpsys gfxinfo %s framestats");
 
         private final String cmdArgs;
@@ -70,102 +66,85 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     @Override
     protected Double collectCpuBenchmarks() {
         String cpuOutput = "";
+        double cpuValue = 0D;
 
         try {
-            for (int x = 0; x <= 7; x++) {
-                cpuOutput = executeMobileShellCommand(cpuCommand);
+            for (int x = 0; x <= 3; x++) {
+                cpuOutput = executeMobileShellCommand(cpuCommand).trim();
+
                 if (!cpuOutput.isEmpty()) {
                     cpuQuantity++;
                     break;
                 }
-                LOGGER.info("# Attempts for cpu: {}", (x + 1));
+                LOGGER.info("# Attempts for CPU: {}", (x + 1));
             }
         } catch (Exception e) {
             LOGGER.warn("There was an error during executing adb shell command");
         }
 
-        cpuNotNull = !cpuOutput.isEmpty();
-
-        LOGGER.info(cpuOutput);
-        String[] cpuData = cpuOutput.trim().split("\\s+");
-        LOGGER.info("cpuArray: {}", Arrays.toString(cpuData));
-        LOGGER.info("cpuArray size: {}", cpuData.length);
-        int cpuIndex = 8;
-        if (cpuData.length > 12) {
-            cpuIndex++;
-        }
-
-        String coreOutput = executeMobileShellCommand(PerformanceTypes.CORE.cmdArgs);
-
-        CoreParser.CoreRow coreRow = (CoreParser.CoreRow) generalParser.parse(Arrays.asList(coreOutput.split("\\n")),
-                PerformanceTypes.CORE);
-        int coreQuantity = coreRow.getCoreQuantity();
-        double cpuValue = 0.0;
         try {
-            cpuValue = Double.parseDouble(cpuData[cpuIndex]) / coreQuantity;
-            LOGGER.info("CPU value: {}", cpuValue);
+            LOGGER.info("% cpu: {}", cpuOutput);
+            cpuValue = Double.parseDouble(cpuOutput);
         } catch (Exception e) {
-            LOGGER.warn("No data was received for cpu");
+            LOGGER.warn("There was an error during parsing cpu command output");
         }
 
         return cpuValue;
     }
 
-    @Override
-    protected MemParser.MemRow collectMemoryBenchmarks() {
+    protected Double collectMemoryBenchmarks() {
         String memOutput = "";
-        String memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+        double memValue = 0D;
 
-        for (int x = 0; x <= 7; x++) {
-            memOutput = executeMobileShellCommand(memCommand);
-            if (!memOutput.isEmpty() && !errorOutput.equals(memOutput)) {
-                memQuantity++;
-                break;
-            }
-            LOGGER.info("# Attempts for pss: {}", (x + 1));
-        }
-
-        MemParser.MemRow row = (MemParser.MemRow) generalParser.parse(Arrays.asList(memOutput.split("\\n")), PerformanceTypes.MEM);
         try {
-            LOGGER.info("total pss: {}", row.getTotalPss());
+            for (int x = 0; x <= 3; x++) {
+                memOutput = executeMobileShellCommand(memCommand).trim();
+
+                if (!memOutput.isEmpty() && !errorOutput.equals(memOutput)) {
+                    memQuantity++;
+                    break;
+                }
+                LOGGER.info("# Attempts for MEM: {}", (x + 1));
+            }
         } catch (Exception e) {
-            LOGGER.warn("No data was received for memory during parsing");
+            LOGGER.warn("There was an error during executing adb shell command");
         }
-        return row;
+
+        try {
+            LOGGER.info("total pss: {}", memOutput);
+            memValue = Double.parseDouble(memOutput);
+        } catch (Exception e) {
+            LOGGER.warn("There was an error during parsing mem command output");
+        }
+
+        return memValue;
     }
 
     @Override
     protected GfxParser.GfxRow collectGfxBenchmarks() {
         String output = "";
-        String gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
 
-        for (int x = 0; x <= 7; x++) {
+        for (int x = 0; x <= 3; x++) {
             output = executeMobileShellCommand(gfxCommand);
             if (!output.equals(errorOutput)) {
                 break;
             }
-            LOGGER.info("# Attempts: {}", (x + 1));
+            LOGGER.info("# Attempts for GFX: {}", (x + 1));
         }
 
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
     @Override
-    public void collectNetBenchmarks() {
-        String pid;
+    protected void collectNetBenchmarks() {
         String netData = "";
 
-        pid = executeMobileShellCommand(pidCommand).replaceAll("\\s+", "");
-        LOGGER.info("PID: {} ", pid);
-
-        String netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
-
-        for (int x = 0; x <= 7; x++) {
+        for (int x = 0; x <= 3; x++) {
             netData = executeMobileShellCommand(netCommand);
             if (!netData.isEmpty()) {
                 break;
             }
-            LOGGER.info("# Attempts: {}", (x + 1));
+            LOGGER.info("# Attempts for NET: {}", (x + 1));
         }
 
         String[] netOutput = netData.split("\\n");
@@ -272,53 +251,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return isAllDataCollected;
     }
 
-    /**
-     * Old way of getting net data, works only for Android 11 and 12, depends on the bucket start
-     * St values should be equal during subtracting
-     */
-    protected NetParser.NetRow collectNetBenchmarksOld() {
-        String id;
-        String userId = "";
-        String netData = "";
-
-        if ("11".equals(getDevice().getOsVersion()) || "12".equals(getDevice().getOsVersion())) {
-
-            Pattern userIdPattern = Pattern.compile("\\s*userId=(\\d*)");
-            String userIdCommand = String.format(PerformanceTypes.USERID.cmdArgs, bundleId);
-
-            id = executeMobileShellCommand(userIdCommand).replaceAll("\\s+", "");
-            LOGGER.info("UID output: {}", id);
-            Matcher m = userIdPattern.matcher(id);
-            if (m.matches()) {
-                userId = m.group(1);
-                LOGGER.info("UserId: {}", userId);
-            }
-
-            for (int x = 0; x <= 7; x++) {
-                netData = executeMobileShellCommand("dumpsys netstats detail");
-                if (netData.contains("uid=" + userId)) {
-                    break;
-                }
-                LOGGER.info("# Attempts: {} ", (x + 1));
-            }
-        }
-
-        String[] netOutput = netData.split("\\n");
-
-        NetParser.NetRow netRow = (NetParser.NetRow) generalParser.parseNet(List.of(netOutput), getDevice(), userId);
-
-        try {
-            LOGGER.info("Net Row: {}", netRow);
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing of netdata");
-        }
-        return netRow;
-    }
-
-    private String generateCpuCommand() {
-        String processName1 = bundleId.substring(0, 14).concat("+");
-        String processName2 = bundleId.substring(0, 15).concat("+");
-        return String.format(PerformanceTypes.CPU.cmdArgs, processName1, processName2);
+    private void generateCommands() {
+        String pid = executeMobileShellCommand(pidCommand).trim();
+        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid) + "%cpu=";
+        netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
+        memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
+        gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);
     }
 
     private String getAppPackage() {
@@ -328,45 +266,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private String executeMobileShellCommand(String command) {
         return (String) ((JavascriptExecutor) getDriver()).executeScript("mobile: shell",
                 ImmutableMap.of("command", "", "args", Collections.singletonList(command)));
-    }
-
-    private HashMap<String, Double> getPerfDataFromAppium(PerformanceTypes performanceType) {
-        return parsePerfData(((HasSupportedPerformanceDataType) getDriver()).getPerformanceData(
-                bundleId, performanceType.cmdArgs, 2));
-    }
-
-    private static HashMap<String, Double> parsePerfData(List<List<Object>> data) {
-        HashMap<String, Double> readableData = new HashMap<>();
-        for (int i = 0; i < data.get(0).size(); i++) {
-            double val;
-            if (data.get(1).get(i) == null) {
-                val = 0;
-            } else {
-                val = Double.parseDouble((String) data.get(1).get(i));
-            }
-            readableData.put((String) data.get(0).get(i), val);
-        }
-        return readableData;
-    }
-
-    public GeneralParser getGeneralParser() {
-        return generalParser;
-    }
-
-    public String getCpuCommand() {
-        return cpuCommand;
-    }
-
-    public String getBundleId() {
-        return bundleId;
-    }
-
-    public String getErrorOutput() {
-        return errorOutput;
-    }
-
-    public String getPidCommand() {
-        return pidCommand;
     }
 
 }
