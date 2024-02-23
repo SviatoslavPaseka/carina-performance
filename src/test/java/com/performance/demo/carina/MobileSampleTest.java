@@ -87,4 +87,48 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
         chartsPage.swipeToAcChartText();
         pause(3);
     }
+
+    @Test
+    @MethodOwner(owner = "iDoctor")
+    @TestLabel(name = "feature",value = {"mobile","regression"})
+    @PerformanceTest(flowName = "ui_charts_presence",userName = user,collectLoginTime = false,collectExecutionTime = false)
+    public void testChartElements() {
+        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
+        LoginPageBase loginPage = welcomePage.clickNextBtn();
+        CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
+        ChartsPageBase chartsPageBase = carinaDescriptionPage.navigateToChartsPage();
+//        Assert.assertTrue(chartsPageBase.isPageOpened(), "Charts page isn't opened");
+        Assert.assertTrue(chartsPageBase.isFruitChartVisible(),"Fruit Chart is not visible or present");
+        Assert.assertTrue(chartsPageBase.isFruitVennDiagramVisible(),"Fruit Venn Diagram is not visible or present");
+//        Assert.assertTrue(chartsPageBase.isFragmentHiloChartVisible(),"FragmentHiloChart is not visible or present.");
+    }
+
+
+    @Test
+    @MethodOwner(owner = "iDoctor")
+    @TestLabel(name = "feature", value = {"mobile","regression"})
+    @PerformanceTest(flowName = "",userName = user,collectLoginTime = false,collectExecutionTime = false)
+    public void testMapElements() {
+        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
+        LoginPageBase loginPage = welcomePage.clickNextBtn();
+        CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
+        MapsPageBase mapsPageBase = carinaDescriptionPage.navigateToMapPage();
+        Assert.assertTrue(mapsPageBase.isImageSliderPresent(),"Image slider content is not visible");
+        Assert.assertTrue(mapsPageBase.isMapPresent(),"Map content is not present");
+        Assert.assertTrue(mapsPageBase.isZoomInBtnPresent(),"Zoom in button is not present");
+        Assert.assertTrue(mapsPageBase.isZoomInBtnClickable(),"Zoom in button is not clickable");
+        mapsPageBase.clickZoomInBtn();
+        Assert.assertTrue(mapsPageBase.isZoomOutBtnPresent(),"Zoom out button is not present");
+        Assert.assertTrue(mapsPageBase.isZoomOutBtnClickable(),"Zoom out button is not clickable");
+        mapsPageBase.clickZoomOutBtn();
+
+
+    }
+    /***
+     *
+     *  When Running tests on iOS it kind of passes log in process, but then we encounter error such as
+     * WARNING: Cannot invoke "com.performance.demo.performance.PerformanceCollector.getLoadTimeStopwatch()" because "com.performance.demo.performance.PerformanceListener.performanceCollector" is null
+     * Additionally after manually logging in the app, the main page is empty, it is not loaded
+     *
+     */
 }
