@@ -91,8 +91,6 @@ public class GfxParser {
         private int percentile90;
         private int percentile95;
         private int percentile99;
-        // private String activityName;
-        // private List<ProfileData> profileData;
 
         public GfxRow(int totalFrames, int jankyFrames, int percentile90, int percentile95, int percentile99) {
             this.totalFrames = totalFrames;
@@ -100,7 +98,6 @@ public class GfxParser {
             this.percentile90 = percentile90;
             this.percentile95 = percentile95;
             this.percentile99 = percentile99;
-            // this.activityName = activityName;
         }
 
         public int getTotalFrames() {

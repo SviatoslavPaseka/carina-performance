@@ -24,7 +24,11 @@ public class PerformanceListener implements WebDriverListener {
      */
     public static void startPerformanceTracking(String flowName, String userName, boolean isCollectLoginTime, boolean isCollectExecutionTime) {
         if (!SpecialKeywords.IOS.equalsIgnoreCase(WebDriverConfiguration.getCapability(CapabilityType.PLATFORM_NAME).orElseThrow())) {
-            performanceCollector = new AdbPerformanceCollector();
+            try {
+                performanceCollector = new AdbPerformanceCollector();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             performanceCollector.setUserName(userName);
             setFlowName(flowName);
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createUnstarted());
@@ -46,6 +50,9 @@ public class PerformanceListener implements WebDriverListener {
      * This method should be used in the end of each performance test
      */
     public static void stopPerformanceTracking() {
+        if (performanceCollector.getLoadTimeStopwatch().isRunning()) {
+            performanceCollector.collectLoadTime(flowName);
+        }
         if (flowName != null) {
             if (performanceCollector.isCollectLoginTime() && !performanceCollector.isCollectExecutionTime())
                 performanceCollector.collectLoginTime(flowName);
@@ -66,7 +73,7 @@ public class PerformanceListener implements WebDriverListener {
         }
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setClickActionName(action);
+            performanceCollector.setActionName(action);
         }
     }
 
@@ -80,7 +87,7 @@ public class PerformanceListener implements WebDriverListener {
             performanceCollector.collectSnapshotBenchmarks(flowName, action);
         if (!performanceCollector.getLoadTimeStopwatch().isRunning()) {
             performanceCollector.setLoadTimeStopwatch(Stopwatch.createStarted());
-            performanceCollector.setClickActionName(action);
+            performanceCollector.setActionName(action);
         }
     }
     @Override

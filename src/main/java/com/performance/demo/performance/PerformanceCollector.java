@@ -34,7 +34,7 @@ public abstract class PerformanceCollector implements IDriverPool {
     private Stopwatch executionStopwatch;
     private Stopwatch loadTimeStopwatch;
 
-    private String clickActionName;
+    private String actionName;
 
     protected String userName;
     protected int loadTimeQty = 0;
@@ -48,7 +48,7 @@ public abstract class PerformanceCollector implements IDriverPool {
         loadTimeStopwatch.stop();
         Double loadTime = (double) loadTimeStopwatch.elapsed(TimeUnit.MILLISECONDS);
         LOGGER.info("LOAD TIME " + loadTime);
-        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, clickActionName));
+        allBenchmarks.add(new LoadTime(loadTime, flowName, instant, userName, actionName));
         loadTimeQty++;
     }
 
@@ -109,8 +109,8 @@ public abstract class PerformanceCollector implements IDriverPool {
         this.userName = userName;
     }
 
-    public void setClickActionName(String clickActionName) {
-        this.clickActionName = clickActionName;
+    public void setActionName(String clickActionName) {
+        this.actionName = clickActionName;
     }
 
     protected abstract Double collectCpuBenchmarks();

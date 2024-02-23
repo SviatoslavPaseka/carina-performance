@@ -49,7 +49,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     public enum PerformanceTypes {
-        CPU("ps -p %s -o "),
+        CPU("ps -p %s -o %%cpu="),
         MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3}'"),
         NET("cat proc/%s/net/dev"),
         PID("pgrep -f %s"),
@@ -294,7 +294,7 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     private void generateCommands() {
         String pid = executeMobileShellCommand(pidCommand).trim();
-        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid) + "%cpu=";
+        cpuCommand = String.format(PerformanceTypes.CPU.cmdArgs, pid);
         netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
         memCommand = String.format(PerformanceTypes.MEM.cmdArgs, bundleId);
         gfxCommand = String.format(PerformanceTypes.GFX.cmdArgs, bundleId);

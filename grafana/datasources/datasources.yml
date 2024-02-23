@@ -14,7 +14,7 @@ datasources:
       organization: "solvd"
       defaultBucket: "carina"
     secureJsonData:
-      token: "uyk0dAnrFF3OiTU8ofoBtbr5y8AbH8B2zVStgvCb8LgjejEateREsIFYrUUSIrsu-amwdxstVTRgbBGzUIdN5g=="
+      token: "token"
 
 # Issue the token by passing command in terminal after first build:
 # >>> docker exec influxdb2 influx auth create -o solvd --all-access | awk '/admin/ {print $2 " "}'

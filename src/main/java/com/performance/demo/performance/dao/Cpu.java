@@ -19,10 +19,6 @@ public class Cpu extends BaseMeasurement {
         this.value = value;
         this.actionName = actionName;
     }
-    public Cpu(Double value, Instant time, String flowName, String userName) {
-        super(flowName, time, userName);
-        this.value = value;
-    }
 
     public Double getValue() {
         return value;

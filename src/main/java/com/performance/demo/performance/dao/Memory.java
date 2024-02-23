@@ -19,10 +19,6 @@ public class Memory extends BaseMeasurement {
         this.usedPercent = usedPercent;
         this.actionName = actionName;
     }
-    public Memory(Double usedPercent, Instant time, String flowName, String userName) {
-        super(flowName, time, userName);
-        this.usedPercent = usedPercent;
-    }
 
     public Double getUsedPercent() {
         return usedPercent;
