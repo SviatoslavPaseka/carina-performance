@@ -63,6 +63,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         }
     }
 
+    /**
+     * Collects CPU benchmark data by executing a shell command and processing the output.
+     * Attempts to collect data up to 8 times if no data is initially returned.
+     *
+     * @return The calculated CPU benchmark value, or null if data collection fails.
+     */
     @Override
     protected Double collectCpuBenchmarks() {
         String cpuOutput = "";
@@ -120,31 +126,50 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         return memValue;
     }
 
+    /**
+     * Collects GFX benchmark data by executing a GFX command and parsing the output.
+     * Retries up to 8 times in case of an error.
+     *
+     * @return GfxRow containing the parsed GFX benchmark results.
+     */
     @Override
     protected GfxParser.GfxRow collectGfxBenchmarks() {
         String output = "";
 
-        for (int x = 0; x <= 3; x++) {
+        for (int attempt = 1; attempt <= 4; attempt++) {
             output = executeMobileShellCommand(gfxCommand);
             if (!output.equals(errorOutput)) {
                 break;
             }
-            LOGGER.info("# Attempts for GFX: {}", (x + 1));
+            LOGGER.info("# Attempts for GFX: {}", (attempt));
         }
 
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
+    /**
+     * Collects network benchmarks by executing a network command and parsing the output.
+     * Attempts to collect data up to 8 times if no data is initially returned.
+     */
     @Override
     protected void collectNetBenchmarks() {
+        String pid;
         String netData = "";
+        pid = executeMobileShellCommand(pidCommand).replaceAll("\\s+", "");
+        LOGGER.info("PID: {} ", pid);
 
-        for (int x = 0; x <= 3; x++) {
+        String netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
+
+        for (int attempt = 1; attempt <= 4; attempt++) {
             netData = executeMobileShellCommand(netCommand);
             if (!netData.isEmpty()) {
                 break;
             }
-            LOGGER.info("# Attempts for NET: {}", (x + 1));
+            LOGGER.info("# Attempts for NET: {}", (attempt));
+        }
+        if (netData.isEmpty()) {
+            LOGGER.warn("Failed to collect network benchmarks after 8 attempts.");
+            return; // Consider appropriate handling for this scenario
         }
 
         String[] netOutput = netData.split("\\n");
@@ -164,6 +189,16 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         }
     }
 
+
+    /**
+     * Calculates the difference between two {@link NetParser.NetRow} instances and creates a {@link Network} instance with the results.
+     *
+     * @param rowStart The starting {@link NetParser.NetRow} instance.
+     * @param rowEnd The ending {@link NetParser.NetRow} instance.
+     * @param instant The timestamp for when the network data is recorded.
+     * @param flowName The name of the network flow.
+     * @return A {@link Network} instance containing the calculated results and additional information.
+     */
     private Network makeSubtraction(NetParser.NetRow rowStart, NetParser.NetRow rowEnd, Instant instant, String flowName) {
         int rbResult = (int) (rowEnd.getRb() - rowStart.getRb());
         int rpResult = (int) (rowEnd.getRp() - rowStart.getRp());
@@ -206,6 +241,12 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         }
     }
 
+    /**
+     * Collects all benchmarks and evaluates if all expected data points have been successfully collected.
+     *
+     * @param flowName The name of the flow for which benchmarks are being collected.
+     * @return true if all expected benchmarks have been collected, false otherwise.
+     */
     @Override
     public boolean collectAllBenchmarks(String flowName) {
         Instant instant = Instant.now();

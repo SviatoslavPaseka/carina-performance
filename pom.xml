@@ -19,7 +19,7 @@
 		<carina-aws-s3.version>1.1.4</carina-aws-s3.version>
 		<java.version>11</java.version>
 		<zebrunner-agent.version>1.9.7</zebrunner-agent.version>
-		<suite>swipeTest</suite>
+<!--		<suite>swipeTest</suite>-->
 	</properties>
 
 	<repositories>
@@ -135,9 +135,9 @@
 				<configuration>
 					<argLine>-javaagent:${project.build.directory}/agent/zebrunner-agent.jar</argLine>
 					<useSystemClassLoader>false</useSystemClassLoader>
-					<suiteXmlFiles>
-						<suiteXmlFile>${project.build.directory}/test-classes/testng_suites/${suite}.xml</suiteXmlFile>
-					</suiteXmlFiles>
+<!--					<suiteXmlFiles>-->
+<!--						<suiteXmlFile>${project.build.directory}/test-classes/testng_suites/${suite}.xml</suiteXmlFile>-->
+<!--					</suiteXmlFiles>-->
 				</configuration>
 			</plugin>
 		</plugins>

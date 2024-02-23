@@ -10,4 +10,12 @@ public abstract class ChartsPageBase extends AbstractPage {
     }
 
     public abstract void swipeToAcChartText();
+
+    // Here we check if Fruit Chart is visible
+    public abstract boolean isFruitChartVisible();
+
+    // Here we check if Fruit Venn Diagram is visible
+    public abstract boolean isFruitVennDiagramVisible();
+
+    public abstract boolean isFragmentHiloChartVisible();
 }
