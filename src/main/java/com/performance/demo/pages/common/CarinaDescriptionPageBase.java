@@ -16,4 +16,6 @@ public abstract class CarinaDescriptionPageBase extends AbstractPage {
     public abstract MapsPageBase navigateToMapPage();
 
     public abstract UIElementsPageBase navigateToUIElementsPage();
+
+    public abstract void longTapOnErrorDescription();
 }

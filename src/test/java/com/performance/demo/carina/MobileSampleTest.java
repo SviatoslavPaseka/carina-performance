@@ -131,4 +131,15 @@ public class MobileSampleTest implements IAbstractTest, IMobileUtils, IPerforman
      * Additionally after manually logging in the app, the main page is empty, it is not loaded
      *
      */
+    @Test()
+    @MethodOwner(owner = "spaseka")
+    @TestLabel(name = "feature", value = {"mobile", "acceptance"})
+    @PerformanceTest(flowName = "taping_test_flow", userName = user, collectLoginTime = true, collectExecutionTime = true)
+    public void testTaping() {
+        WelcomePageBase welcomePage = initPage(getDriver(), WelcomePageBase.class);
+        LoginPageBase loginPage = welcomePage.clickNextBtn();
+        CarinaDescriptionPageBase carinaDescriptionPage = loginPage.login();
+        carinaDescriptionPage.longTapOnErrorDescription();
+        pause(3);
+    }
 }

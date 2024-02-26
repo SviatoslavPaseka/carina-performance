@@ -11,7 +11,8 @@
 		<classes>
 			<class name="com.performance.demo.carina.MobileSampleTest" >
 				<methods>
-					<include name="testSwiping"/>
+					<include name="testTaping"/>
+<!--					<include name="testSwiping"/>-->
 				</methods>
 			</class>
 		</classes>

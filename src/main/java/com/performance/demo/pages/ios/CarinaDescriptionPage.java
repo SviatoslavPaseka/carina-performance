@@ -42,6 +42,11 @@ public class CarinaDescriptionPage extends CarinaDescriptionPageBase {
     }
 
     @Override
+    public void longTapOnErrorDescription() {
+
+    }
+
+    @Override
     public boolean isPageOpened() {
         return webViewTitle.isElementPresent();
     }
