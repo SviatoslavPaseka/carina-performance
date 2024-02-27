@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.performance.demo.performance.AdbPerformanceCollector;
-import com.zebrunner.carina.webdriver.device.Device;
 
 public class GeneralParser {
 

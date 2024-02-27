@@ -30,7 +30,6 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     private final String bundleId = getAppPackage();
     private final GeneralParser generalParser;
     private final String pidCommand = String.format(PerformanceTypes.PID.cmdArgs, bundleId);
-    private final String errorOutput = String.format("No process found for: %s%n", bundleId);
     private String cpuCommand;
     private String memCommand;
     private String netCommand;
@@ -50,10 +49,9 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     public enum PerformanceTypes {
         CPU("ps -p %s -o %%cpu="),
-        MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3}'"),
+        MEM("dumpsys meminfo %s | awk '/TOTAL PSS:/ {print $3} /TOTAL:/ {print $2}'"),
         NET("cat proc/%s/net/dev"),
         PID("pgrep -f %s"),
-        CORE("cat /proc/stat"),
         GFX("dumpsys gfxinfo %s framestats");
 
         private final String cmdArgs;
@@ -64,63 +62,68 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
     }
 
     /**
+     * Collects performance output data by executing a given adb shell command.
+     * Attempts to collect data up to 3 times if no data is initially returned.
+     *
+     * @param command adb shell command to be executed.
+     * @return String benchmark output, or null if data collection fails.
+     */
+    private String collectBenchmark(String command) {
+        String output = "";
+        try {
+            for (int attempt = 1; attempt <= 3; attempt++) {
+                output = executeMobileShellCommand(command).trim();
+                if (!output.isEmpty()) {
+                    break;
+                }
+                LOGGER.info("# Attempts for '{}' command: {}", command, attempt);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("There was an error during executing adb shell command");
+        }
+        return output;
+    }
+
+    /**
      * Collects CPU benchmark data by executing a shell command and processing the output.
-     * Attempts to collect data up to 8 times if no data is initially returned.
      *
      * @return The calculated CPU benchmark value, or null if data collection fails.
      */
     @Override
     protected Double collectCpuBenchmarks() {
-        String cpuOutput = "";
-        double cpuValue = 0D;
+        Double cpuValue = null;
+        String cpuOutput = collectBenchmark(cpuCommand);
 
-        try {
-            for (int x = 0; x <= 3; x++) {
-                cpuOutput = executeMobileShellCommand(cpuCommand).trim();
-
-                if (!cpuOutput.isEmpty()) {
-                    cpuQuantity++;
-                    break;
-                }
-                LOGGER.info("# Attempts for CPU: {}", (x + 1));
+        if (!cpuOutput.isEmpty()) {
+            try {
+                LOGGER.info("% cpu: {}", cpuOutput);
+                cpuValue = Double.parseDouble(cpuOutput);
+            } catch (Exception e) {
+                LOGGER.warn("There was an error during parsing cpu command output");
             }
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during executing adb shell command");
-        }
-
-        try {
-            LOGGER.info("% cpu: {}", cpuOutput);
-            cpuValue = Double.parseDouble(cpuOutput);
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing cpu command output");
+            cpuQuantity++;
         }
 
         return cpuValue;
     }
 
+    /**
+     * Collects Memory benchmark data by executing a shell command and processing the output.
+     *
+     * @return The calculated MEM benchmark value, or null if data collection fails.
+     */
     protected Double collectMemoryBenchmarks() {
-        String memOutput = "";
-        double memValue = 0D;
+        Double memValue = null;
+        String memOutput = collectBenchmark(memCommand);
 
-        try {
-            for (int x = 0; x <= 3; x++) {
-                memOutput = executeMobileShellCommand(memCommand).trim();
-
-                if (!memOutput.isEmpty() && !errorOutput.equals(memOutput)) {
-                    memQuantity++;
-                    break;
-                }
-                LOGGER.info("# Attempts for MEM: {}", (x + 1));
+        if (!memOutput.isEmpty()) {
+            try {
+                LOGGER.info("total pss: {}", memOutput);
+                memValue = Double.parseDouble(memOutput);
+            } catch (Exception e) {
+                LOGGER.warn("There was an error during parsing MEM command output");
             }
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during executing adb shell command");
-        }
-
-        try {
-            LOGGER.info("total pss: {}", memOutput);
-            memValue = Double.parseDouble(memOutput);
-        } catch (Exception e) {
-            LOGGER.warn("There was an error during parsing mem command output");
+            memQuantity++;
         }
 
         return memValue;
@@ -128,49 +131,24 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
 
     /**
      * Collects GFX benchmark data by executing a GFX command and parsing the output.
-     * Retries up to 8 times in case of an error.
      *
      * @return GfxRow containing the parsed GFX benchmark results.
      */
     @Override
     protected GfxParser.GfxRow collectGfxBenchmarks() {
-        String output = "";
-
-        for (int attempt = 1; attempt <= 4; attempt++) {
-            output = executeMobileShellCommand(gfxCommand);
-            if (!output.equals(errorOutput)) {
-                break;
-            }
-            LOGGER.info("# Attempts for GFX: {}", (attempt));
-        }
+        String output = collectBenchmark(gfxCommand);
 
         return (GfxParser.GfxRow) generalParser.parse(Arrays.asList(output.split("\\n")), PerformanceTypes.GFX);
     }
 
     /**
      * Collects network benchmarks by executing a network command and parsing the output.
-     * Attempts to collect data up to 8 times if no data is initially returned.
      */
     @Override
     protected void collectNetBenchmarks() {
-        String pid;
-        String netData = "";
-        pid = executeMobileShellCommand(pidCommand).replaceAll("\\s+", "");
+        String netData = collectBenchmark(netCommand);
+        String pid = executeMobileShellCommand(pidCommand).trim();
         LOGGER.info("PID: {} ", pid);
-
-        String netCommand = String.format(PerformanceTypes.NET.cmdArgs, pid);
-
-        for (int attempt = 1; attempt <= 4; attempt++) {
-            netData = executeMobileShellCommand(netCommand);
-            if (!netData.isEmpty()) {
-                break;
-            }
-            LOGGER.info("# Attempts for NET: {}", (attempt));
-        }
-        if (netData.isEmpty()) {
-            LOGGER.warn("Failed to collect network benchmarks after 8 attempts.");
-            return; // Consider appropriate handling for this scenario
-        }
 
         String[] netOutput = netData.split("\\n");
 
@@ -187,15 +165,15 @@ public class AdbPerformanceCollector extends PerformanceCollector implements IDr
         } else {
             netRowEnd = netRow;
         }
-    }
 
+    }
 
     /**
      * Calculates the difference between two {@link NetParser.NetRow} instances and creates a {@link Network} instance with the results.
      *
      * @param rowStart The starting {@link NetParser.NetRow} instance.
-     * @param rowEnd The ending {@link NetParser.NetRow} instance.
-     * @param instant The timestamp for when the network data is recorded.
+     * @param rowEnd   The ending {@link NetParser.NetRow} instance.
+     * @param instant  The timestamp for when the network data is recorded.
      * @param flowName The name of the network flow.
      * @return A {@link Network} instance containing the calculated results and additional information.
      */

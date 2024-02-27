@@ -28,8 +28,6 @@ public class GfxParser {
         Integer percentile95 = null;
         Integer percentile99 = null;
         boolean foundGfxDel = false;
-        // String activityName = null;
-        // int activityCounter = 0;
 
         for (String line : lines) {
             Matcher matcher = GENERAL_INFO_DELIMITER.matcher(line);
@@ -67,13 +65,6 @@ public class GfxParser {
                 percentile99 = Integer.parseInt(matcher.group(1));
                 LOGGER.info("99_p: " + percentile99);
             }
-
-            // matcher = ACTIVITY_PREFIX.matcher(line);
-            // if (activityName == null && matcher.matches()) {
-            // activityName = matcher.group(1);
-            // activityCounter++;
-            // LOGGER.info("activityName: " + activityName);
-            // }
 
             if (totalFrames != null && jankyFrames != null && percentile90 != null && percentile95 != null && percentile99 != null) {
                 gfxRow = new GfxRow(totalFrames, jankyFrames, percentile90, percentile95, percentile99);
